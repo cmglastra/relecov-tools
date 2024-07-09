@@ -1,10 +1,5 @@
 # Create symbolic links
 echo "[i] Iterating through samples' directories and creating symbolic link to their report in a unified directory."
-#cat samples_id.txt | xargs -t -I @@ bash -c 'echo "Processing sample @@"; ln -s ../../../02-run/output_card/@@_ariba_card/report.tsv card_summary/reports/@@_report.tsv'
-#cd card_summary/reports
-#cat ../../../samples_id.txt | xargs -I @@ bash -c 'echo "Processing sample @@"; ln -s ../../../02-run/output_card/@@_ariba_card/report.tsv @@_report.tsv'
-#cd -
-
 
 
 scratch_dir=$(echo $PWD | sed 's/\/data\/bi\/scratch_tmp/\/scratch/g')
