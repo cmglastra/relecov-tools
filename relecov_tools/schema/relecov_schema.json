@@ -771,9 +771,9 @@
                 "Middle Nasal Turbinate Scraping",
                 "Nasopharynx Scraping",
                 "Oropharynx  Scraping",
-                "Nasopharynx Swabbing",
-                "Oropharynx Swabbing",
-                "Pharynx Swabbing",
+                "Nasopharynx Swab",
+                "Oropharynx Swab",
+                "Pharynx Swab",
                 "Lower respiratory tract Wash",
                 "Bronchus Wash",
                 "Lung Wash",
@@ -906,7 +906,7 @@
                 "Phlebotomy [NCIT:C28221]",
                 "Rinsing [GENEPIO:0002116]",
                 "Scraping [GENEPIO:0100035]",
-                "Swabbing [NCIT:C17627]",
+                "Swab [NCIT:C17627]",
                 "Finger Pick [GENEPIO:0100036]",
                 "Wash [NCIT:C65077]",
                 "Washout Tear Collection [GENEPIO:0100038]",
@@ -944,7 +944,7 @@
                 "Missing [GENEPIO:0001618]",
                 "Restricted Access [GENEPIO:0001810]"
             ],
-            "ontology": "SNOMED:364684009",
+            "ontology": "GENEPIO:0001216",
             "type": "string",
             "description": "",
             "examples": [
@@ -2692,6 +2692,15 @@
             "description": "The user-defined GISAID virus name assigned to the sequence.",
             "classification": "Public databases",
             "label": "GISAID Virus Name",
+            "fill_mode": "sample"
+        },
+        "gisaid_covv_type": {
+            "examples": ["betacoronavirus"],
+            "ontology": "NCIT:C25284",
+            "type": "string",
+            "description": "default must remain 'betacoronavirus'",
+            "clasification": "Database Identifiers",
+            "label": "GISAID covv type",
             "fill_mode": "sample"
         },
         "ena_analysis_accession": {
