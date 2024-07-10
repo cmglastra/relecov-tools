@@ -1,0 +1,120 @@
+# Create symbolic links
+echo "[i] Iterating through samples' directories and creating symbolic link to their report in a unified directory."
+
+
+scratch_dir=$(echo $PWD | sed 's/\/data\/bi\/scratch_tmp/\/scratch/g')
+
+mkdir -p 00-logs
+ln -s ../samples_id.txt
+mkdir -p 00-logs/card 00-logs/ncbi 00-logs/resfinder
+
+cat <<EOF > ariba_summary_card.sbatch
+#!/bin/sh
+#SBATCH --ntasks 1
+#SBATCH --cpus-per-task 2
+#SBATCH --mem 8G
+#SBATCH --time 8:00:00
+#SBATCH --job-name ARIBA_SUMMARY_CARD
+#SBATCH --array=1-82
+#SBATCH --partition middle_idx
+#SBATCH --output 00-logs/card/$(date '+%Y%m%d')_ARIBA.%j.log
+#SBATCH --chdir /scratch/bi/20240409_TFM-CMARTINEZ_IC-SM_T/ANALYSIS/20240612_ANALYSIS04_ARIBA/03-summary
+
+#Define variables
+OUTPUT='card_summary'
+REPORTS='card_summary/reports'
+
+mkdir -p \$OUTPUT
+mkdir -p \$REPORTS
+
+pushd \$REPORTS
+cat ../../../samples_id.txt | xargs -I @@ bash -c 'echo "Processing sample @@"; ln -s ../../../02-run/output_card/@@_ariba_card/report.tsv @@_report.tsv'
+
+cd ..
+
+#chdir to OUTPUT directory so the output summary files are stored there
+ariba summary --cluster_cols match,ref_seq,pct_id,ctg_cov out_card reports/*_report.tsv
+popd
+
+
+EOF
+
+echo "sbatch ariba_summary_card.sbatch" > _03_ariba_card.sh
+
+
+
+
+
+
+
+cat <<EOF > ariba_summary_ncbi.sbatch
+#!/bin/sh
+#SBATCH --ntasks 1
+#SBATCH --cpus-per-task 2
+#SBATCH --mem 8G
+#SBATCH --time 8:00:00
+#SBATCH --job-name ARIBA_SUMMARY_NCBI
+#SBATCH --array=1-82
+#SBATCH --partition middle_idx
+#SBATCH --output 00-logs/ncbi/$(date '+%Y%m%d')_ARIBA.%j.log
+#SBATCH --chdir /scratch/bi/20240409_TFM-CMARTINEZ_IC-SM_T/ANALYSIS/20240612_ANALYSIS04_ARIBA/03-summary
+
+
+#Define variables
+OUTPUT='ncbi_summary'
+REPORTS='ncbi_summary/reports'
+
+mkdir -p \$OUTPUT
+mkdir -p \$REPORTS
+
+#create symbolic links to reports.tsv in a single folder (REPORTS)
+pushd \$REPORTS
+cat ../../../samples_id.txt | xargs -I @@ bash -c 'echo "Processing sample @@"; ln -s ../../../02-run/output_ncbi/@@_ariba_ncbi/report.tsv @@_report.tsv'
+
+cd ..
+
+#chdir to OUTPUT directory so the output summary files are stored there
+ariba summary --cluster_cols match,ref_seq,pct_id,ctg_cov out_ncbi reports/*_report.tsv
+popd
+
+EOF
+
+echo "sbatch ariba_summary_ncbi.sbatch" > _03_ariba_ncbi.sh
+
+
+
+
+
+cat <<EOF > ariba_summary_resfinder.sbatch
+#!/bin/sh
+#SBATCH --ntasks 1
+#SBATCH --cpus-per-task 2
+#SBATCH --mem 8G
+#SBATCH --time 8:00:00
+#SBATCH --job-name ARIBA_SUMMARY_RESFINDER
+#SBATCH --array=1-82
+#SBATCH --partition middle_idx
+#SBATCH --output 00-logs/resfinder/$(date '+%Y%m%d')_ARIBA.%j.log
+#SBATCH --chdir /scratch/bi/20240409_TFM-CMARTINEZ_IC-SM_T/ANALYSIS/20240612_ANALYSIS04_ARIBA/03-summary
+
+
+#Define variables
+OUTPUT='resfinder_summary'
+REPORTS='resfinder_summary/reports'
+
+mkdir -p \$OUTPUT
+mkdir -p \$REPORTS
+
+#create symbolic links to reports.tsv in a single folder (REPORTS)
+pushd \$REPORTS
+cat ../../../samples_id.txt | xargs -I @@ bash -c 'echo "Processing sample @@"; ln -s ../../../02-run/output_resfinder/@@_ariba_resfinder/report.tsv @@_report.tsv'
+
+cd ..
+
+#chdir to OUTPUT directory so the output summary files are stored there
+ariba summary --cluster_cols match,ref_seq,pct_id,ctg_cov out_resfinder reports/*_report.tsv
+popd
+
+EOF
+
+echo "sbatch ariba_summary_resfinder.sbatch" > _03_ariba_resfinder.sh
