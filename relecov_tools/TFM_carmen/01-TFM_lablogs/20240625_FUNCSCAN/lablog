@@ -1,0 +1,122 @@
+scratch_dir=$(echo $PWD | sed 's/\/data\/bi\/scratch_tmp/\/scratch/g')
+
+# SETUP INTPUT SAMPLE SHEET
+echo "sample,fasta" > samplesheet.csv
+cat ../../samples_id.txt | xargs -I % echo "%,../../20240410_ANALYSIS01_ASSEMBLY/03-assembly/unicycler/%.fasta.gz" >> samplesheet.csv
+
+mkdir -p logs
+
+cat <<EOF > abricate_card.sbatch
+#!/bin/bash
+#SBATCH --ntasks 1
+#SBATCH --cpus-per-task 2
+#SBATCH --mem 8G
+#SBATCH --time 8:00:00
+#SBATCH --partition middle_idx
+#SBATCH --output logs/$(date '+%Y%m%d')_abricate_card.%j.log
+#SBATCH --chdir $scratch_dir
+
+#Runs ABRicate using CARD
+
+#Load Nextflow and Singularity
+module load Nextflow/23.10.0 singularity
+export NXF_OPTS="-Xms500M -Xmx8G" 
+
+echo "Running ABRICATE using CARD"
+
+nextflow run /data/bi/pipelines/nf-core-funcscan-1.1.5/workflow/main.nf \\
+    -c ../../../DOC/hpc_slurm_funcscan.config \\
+    --input samplesheet.csv \\
+    --outdir $(date '+%Y%m%d')_abricate_card \\
+    --run_arg_screening \\
+    --annotation_tool bakta \\
+    --arg_abricate_db card \\
+    --save_annotations \\
+    --save_databases \\
+    --arg_skip_amrfinderplus \\
+    --arg_skip_deeparg \\
+    --arg_skip_fargene \\
+    --arg_skip_rgi \\
+    --arg_hamronization_summarizeformat tsv
+EOF
+
+echo "sbatch abricate_card.sbatch" > _01_abricate_card.sh
+
+
+
+
+cat <<EOF > abricate_ncbi.sbatch
+#!/bin/bash
+#SBATCH --ntasks 1
+#SBATCH --cpus-per-task 2
+#SBATCH --mem 8G
+#SBATCH --time 8:00:00
+#SBATCH --partition middle_idx
+#SBATCH --output logs/$(date '+%Y%m%d')_abricate_ncbi.%j.log
+#SBATCH --chdir $scratch_dir
+
+#Runs ABRicate using NCBI
+
+#Load Nextflow and Singularity
+module load Nextflow/23.10.0 singularity
+export NXF_OPTS="-Xms500M -Xmx8G" 
+
+echo "Running ABRICATE using NCBI"
+
+nextflow run /data/bi/pipelines/nf-core-funcscan-1.1.5/workflow/main.nf \\
+    -c ../../../DOC/hpc_slurm_funcscan.config \\
+    --input samplesheet.csv \\
+    --outdir $(date '+%Y%m%d')_abricate_ncbi \\
+    --run_arg_screening \\
+    --annotation_tool bakta \\
+    --arg_abricate_db ncbi \\
+    --save_annotations \\
+    --save_databases \\
+    --arg_skip_amrfinderplus \\
+    --arg_skip_deeparg \\
+    --arg_skip_fargene \\
+    --arg_skip_rgi \\
+    --arg_hamronization_summarizeformat tsv
+EOF
+
+echo "sbatch abricate_ncbi.sbatch" > _01_abricate_ncbi.sh
+
+
+
+
+
+cat <<EOF > abricate_resfinder.sbatch
+#!/bin/bash
+#SBATCH --ntasks 1
+#SBATCH --cpus-per-task 2
+#SBATCH --mem 8G
+#SBATCH --time 8:00:00
+#SBATCH --partition middle_idx
+#SBATCH --output logs/$(date '+%Y%m%d')_abricate_resfinder.%j.log
+#SBATCH --chdir $scratch_dir
+
+#Runs ABRicate using ResFinder
+
+#Load Nextflow and Singularity
+module load Nextflow/23.10.0 singularity
+export NXF_OPTS="-Xms500M -Xmx8G" 
+
+echo "Running ABRICATE using ResFinder"
+
+nextflow run /data/bi/pipelines/nf-core-funcscan-1.1.5/workflow/main.nf \\
+    -c ../../../DOC/hpc_slurm_funcscan.config \\
+    --input samplesheet.csv \\
+    --outdir $(date '+%Y%m%d')_abricate_resfinder \\
+    --run_arg_screening \\
+    --annotation_tool bakta \\
+    --arg_abricate_db resfinder \\
+    --save_annotations \\
+    --save_databases \\
+    --arg_skip_amrfinderplus \\
+    --arg_skip_deeparg \\
+    --arg_skip_fargene \\
+    --arg_skip_rgi \\
+    --arg_hamronization_summarizeformat tsv
+EOF
+
+echo "sbatch abricate_resfinder.sbatch" > _01_abricate_resfinder.sh

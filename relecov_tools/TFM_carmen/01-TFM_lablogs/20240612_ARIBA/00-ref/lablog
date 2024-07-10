@@ -1,0 +1,80 @@
+# conda activate ariba
+scratch_dir=$(echo $PWD | sed 's/\/data\/bi\/scratch_tmp/\/scratch/g')
+
+# SETUP INTPUT SAMPLE SHEET
+mkdir -p logs
+
+cat <<EOF > ariba_ref_card.sbatch
+#!/bin/sh
+#SBATCH --ntasks 1
+#SBATCH --cpus-per-task 2
+#SBATCH --mem 8G
+#SBATCH --time 8:00:00
+#SBATCH --job-name ariba_red_card
+#SBATCH --partition middle_idx
+#SBATCH --output logs/$(date '+%Y%m%d')_ARIBA.%j.log
+#SBATCH --chdir $scratch_dir
+
+
+ariba getref card out.card
+ariba prepareref -f out.card.fa -m out.card.tsv output_card 1>/dev/null
+
+echo '[i] Reference Database (CARD) ready'
+
+EOF
+
+echo "sbatch ariba_ref_card.sbatch" > _00_ariba_ref_card.sh
+
+
+
+
+cat <<EOF > ariba_ref_ncbi.sbatch
+#!/bin/sh
+#SBATCH --ntasks 1
+#SBATCH --cpus-per-task 2
+#SBATCH --mem 8G
+#SBATCH --time 8:00:00
+#SBATCH --job-name ariba_red_ncbi
+#SBATCH --partition middle_idx
+#SBATCH --output logs/$(date '+%Y%m%d')_ARIBA.%j.log
+#SBATCH --chdir $scratch_dir
+
+ariba getref ncbi out.ncbi
+ariba prepareref -f out.ncbi.fa -m out.ncbi.tsv output_ncbi 1>/dev/null
+
+echo '[i] Reference Database (NCBI) ready'
+
+EOF
+
+echo "sbatch ariba_ref_ncbi.sbatch" > _00_ariba_ref_ncbi.sh
+
+
+
+cat <<EOF > ariba_ref_resfinder.sbatch
+#!/bin/sh
+#SBATCH --ntasks 1
+#SBATCH --cpus-per-task 2
+#SBATCH --mem 8G
+#SBATCH --time 8:00:00
+#SBATCH --job-name ariba_red_resfinder
+#SBATCH --partition middle_idx
+#SBATCH --output logs/$(date '+%Y%m%d')_ARIBA.%j.log
+#SBATCH --chdir $scratch_dir
+
+
+ariba getref resfinder out.resfinder
+ariba prepareref -f out.resfinder.fa -m out.resfinder.tsv output_resfinder 1>/dev/null
+
+
+echo '[i] Reference Database (ResFinder) ready'
+
+
+
+EOF
+
+echo "sbatch ariba_ref_resfinder.sbatch" > _00_ariba_ref_resfinder.sh
+
+
+
+
+

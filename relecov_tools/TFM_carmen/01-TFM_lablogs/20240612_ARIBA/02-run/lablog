@@ -1,0 +1,143 @@
+# conda activate ariba
+scratch_dir=$(echo $PWD | sed 's/\/data\/bi\/scratch_tmp/\/scratch/g')
+
+# SETUP INTPUT SAMPLE SHEET
+ln -s ../../samples_id.txt .
+ln -s ../../00-reads .
+mkdir -p logs
+
+#Make output directories
+mkdir output_card output_ncbi output_resfinder
+
+
+cat <<EOF > ariba_card.sbatch
+#!/bin/sh
+#SBATCH --ntasks 1
+#SBATCH --cpus-per-task 2
+#SBATCH --mem 8G
+#SBATCH --time 8:00:00
+#SBATCH --job-name ARIBA
+#SBATCH --array=1-$(wc -l ../samples_id.txt | cut -f1 -d' ')
+#SBATCH --partition middle_idx
+#SBATCH --output logs/card_$(date '+%Y%m%d')_ARIBA.%j.log
+#SBATCH --chdir $scratch_dir
+
+
+
+#Define variables
+FASTQ_COUNT=$(wc -l samples_id.txt | cut -f1 -d' ')
+REF_OUTPUTDIR='../00-ref/output_card'
+
+echo "Running ARIBA analysis using database: CARD, for \$FASTQ_COUNT samples..."
+
+sample_name=\$(awk "NR==\$SLURM_ARRAY_TASK_ID" ../../samples_id.txt)
+sample_fileR1="../00-reads/\${sample_name}_R1.fastq.gz"
+sample_fileR2="../00-reads/\${sample_name}_R2.fastq.gz"
+
+echo "SAMPLENAME: \$sample_name"
+echo "READ FILES: \$sample_fileR1; \$sample_fileR2"
+
+#run ARIBA with each sample
+echo "[i] Running ariba on sample: \$sample_name"
+
+#create an output directory for every sample
+output_dir="output_card/\${sample_name}_ariba_card"
+
+ariba run \$REF_OUTPUTDIR \$sample_fileR1 \$sample_fileR2 \$output_dir
+
+
+EOF
+
+echo "sbatch ariba_card.sbatch" > _01_ariba_card.sh
+
+
+
+
+cat <<EOF > ariba_ncbi.sbatch
+#!/bin/sh
+#SBATCH --ntasks 1
+#SBATCH --cpus-per-task 2
+#SBATCH --mem 8G
+#SBATCH --time 8:00:00
+#SBATCH --job-name ARIBA
+#SBATCH --array=1-$(wc -l ../samples_id.txt | cut -f1 -d' ')
+#SBATCH --partition middle_idx
+#SBATCH --output logs/ncbi_$(date '+%Y%m%d')_ARIBA.%j.log
+#SBATCH --chdir $scratch_dir
+
+#Define variables
+FASTQ_COUNT=$(wc -l samples_id.txt | cut -f1 -d' ')
+REF_OUTPUTDIR='../00-ref/output_ncbi'
+
+echo "Running ARIBA analysis using database: NCBI, for \$FASTQ_COUNT samples..."
+
+sample_name=\$(awk "NR==\$SLURM_ARRAY_TASK_ID" ../samples_id.txt)
+sample_fileR1="../../00-reads/\${sample_name}_R1.fastq.gz"
+sample_fileR2="../../00-reads/\${sample_name}_R2.fastq.gz"
+
+echo "SAMPLENAME: \$sample_name"
+echo "READ FILES: \$sample_fileR1; \$sample_fileR2"
+
+#run ARIBA with each sample
+echo "[i] Running ariba on sample: \$sample_name"
+
+#create an output directory for every sample
+output_dir="output_ncbi/\${sample_name}_ariba_ncbi"
+
+ariba run \$REF_OUTPUTDIR \$sample_fileR1 \$sample_fileR2 \$output_dir
+
+
+EOF
+
+echo "sbatch ariba_ncbi.sbatch" > _01_ariba_ncbi.sh
+
+
+
+
+
+
+cat <<EOF > ariba_resfinder.sbatch
+#!/bin/sh
+#SBATCH --ntasks 1
+#SBATCH --cpus-per-task 2
+#SBATCH --mem 8G
+#SBATCH --time 8:00:00
+#SBATCH --job-name ARIBA
+#SBATCH --array=1-$(wc -l ../samples_id.txt | cut -f1 -d' ')
+#SBATCH --partition middle_idx
+#SBATCH --output logs/resfinder_$(date '+%Y%m%d')_ARIBA.%j.log
+#SBATCH --chdir $scratch_dir
+
+#Define variables
+FASTQ_COUNT=$(wc -l samples_id.txt | cut -f1 -d' ')
+REF_OUTPUTDIR='../00-ref/output_resfinder'
+
+echo "Running ARIBA analysis using database: ResFinder, for \$FASTQ_COUNT samples..."
+
+sample_name=\$(awk "NR==\$SLURM_ARRAY_TASK_ID" ../samples_id.txt)
+sample_fileR1="../../00-reads/\${sample_name}_R1.fastq.gz"
+sample_fileR2="../../00-reads/\${sample_name}_R2.fastq.gz"
+
+echo "SAMPLENAME: \$sample_name"
+echo "READ FILES: \$sample_fileR1; \$sample_fileR2"
+
+#run ARIBA with each sample
+echo "[i] Running ariba on sample: \$sample_name"
+
+#create an output directory for every sample
+output_dir="output_resfinder/\${sample_name}_ariba_resfinder"
+
+ariba run \$REF_OUTPUTDIR \$sample_fileR1 \$sample_fileR2 \$output_dir
+
+
+
+EOF
+
+echo "sbatch ariba_resfinder.sbatch" > _01_ariba_resfinder.sh
+
+
+
+
+
+
+
